@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,9 +34,9 @@ public class Cours {
             inverseJoinColumns = @JoinColumn(name = "apprenant_id")
     )
     @JsonIgnore
-    private List<Utilisateur> apprenants;
+    private List<Utilisateur> apprenants = new ArrayList<>(); // ✅ important
 
     @OneToMany(mappedBy = "cours", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<ModuleCours> modules;
+    private List<ModuleCours> modules = new ArrayList<>(); // ✅ aussi important
 }
