@@ -15,7 +15,7 @@
         <module name="LMS" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="17">
       <module name="LMS" target="17" />
     </bytecodeTargetLevel>
   </component>

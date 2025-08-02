@@ -1,5 +1,6 @@
 package com.coopchal.lms.models;
 
+import com.coopchal.lms.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
