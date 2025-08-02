@@ -14,7 +14,7 @@ build_backend:
   stage: build
   image: maven:3.9.2-eclipse-temurin-17
   script:
-    - mvn clean install -DskipTests=true
+    - mvn clean install -DskipTests=true -e -X
   artifacts:
     paths:
       - target/*.jar
@@ -36,4 +36,4 @@ test_backend:
     # Optionnel: attendre que MinIO soit prêt
     - echo "Waiting for MinIO service..."
     - until curl -s $MINIO_ENDPOINT; do sleep 3; done
-    - mvn test -X
+    - mvn test -e -X
