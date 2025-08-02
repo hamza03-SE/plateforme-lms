@@ -36,8 +36,6 @@ build_docker:
 test_backend:
   stage: test
   image: maven:3.9.2-eclipse-temurin-17
-  dependencies:
-    - build_backend
   services:
     - name: postgres:14
       alias: postgres
@@ -51,14 +49,14 @@ test_backend:
     MINIO_ENDPOINT: "http://minio:9000"
     MINIO_ACCESS_KEY: "minioadmin"
     MINIO_SECRET_KEY: "minioadmin"
-    # Variables utiles pour que l'application se connecte bien aux services
     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lms
     SPRING_DATASOURCE_USERNAME: postgres
     SPRING_DATASOURCE_PASSWORD: admin1234
     SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
   script:
-    - echo "Waiting for MinIO service..."
+    - apt-get update && apt-get install -y postgresql-client
+    - echo "Attente de MinIO..."
     - until curl -s $MINIO_ENDPOINT; do sleep 3; done
-    - echo "Waiting for PostgreSQL service..."
-    - until pg_isready -h postgres -p 5432 -U user; do sleep 3; done
+    - echo "Attente de PostgreSQL..."
+    - until pg_isready -h postgres -p 5432 -U postgres; do sleep 3; done
     - mvn test -e -X
