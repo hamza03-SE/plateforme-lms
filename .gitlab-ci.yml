@@ -39,14 +39,26 @@ test_backend:
   dependencies:
     - build_backend
   services:
+    - name: postgres:14
+      alias: postgres
     - name: minio/minio
       alias: minio
       command: ["server", "/data"]
   variables:
+    POSTGRES_DB: lms_test
+    POSTGRES_USER: user
+    POSTGRES_PASSWORD: password
     MINIO_ENDPOINT: "http://minio:9000"
     MINIO_ACCESS_KEY: "minioadmin"
     MINIO_SECRET_KEY: "minioadmin"
+    # Variables utiles pour que l'application se connecte bien aux services
+    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lms
+    SPRING_DATASOURCE_USERNAME: postgres
+    SPRING_DATASOURCE_PASSWORD: admin1234
+    SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
   script:
     - echo "Waiting for MinIO service..."
     - until curl -s $MINIO_ENDPOINT; do sleep 3; done
+    - echo "Waiting for PostgreSQL service..."
+    - until pg_isready -h postgres -p 5432 -U user; do sleep 3; done
     - mvn test -e -X
