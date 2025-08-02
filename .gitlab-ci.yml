@@ -5,6 +5,13 @@ stages:
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lms
+  SPRING_DATASOURCE_USERNAME: postgres
+  SPRING_DATASOURCE_PASSWORD: admin1234
+  SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+  MINIO_ENDPOINT: "http://minio:9000"
+  MINIO_ACCESS_KEY: "minioadmin"
+  MINIO_SECRET_KEY: "minioadmin"
 
 cache:
   key: "${CI_COMMIT_REF_SLUG}"
@@ -46,17 +53,11 @@ test_backend:
     POSTGRES_DB: lms
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: admin1234
-    MINIO_ENDPOINT: "http://minio:9000"
-    MINIO_ACCESS_KEY: "minioadmin"
-    MINIO_SECRET_KEY: "minioadmin"
-    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lms
-    SPRING_DATASOURCE_USERNAME: postgres
-    SPRING_DATASOURCE_PASSWORD: admin1234
-    SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
   script:
-    - apt-get update && apt-get install -y postgresql-client
+    - apt-get update && apt-get install -y curl postgresql-client
     - echo "Attente de MinIO..."
-    - until curl -s $MINIO_ENDPOINT; do sleep 3; done
+    - until curl -s $MINIO_ENDPOINT; do echo "en attente..."; sleep 3; done
     - echo "Attente de PostgreSQL..."
-    - until pg_isready -h postgres -p 5432 -U postgres; do sleep 3; done
-    - mvn test -e -X
+    - until pg_isready -h postgres -p 5432 -U postgres; do echo "en attente..."; sleep 3; done
+    - echo "MinIO et PostgreSQL disponibles, lancement des tests..."
+    - mvn test -Dsurefire.useFile=false -Dsurefire.printSummary=true -e -X
