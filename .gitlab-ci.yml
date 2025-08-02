@@ -1,0 +1,21 @@
+stages:
+  - build
+  - test
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+build_backend:
+  stage: build
+  image: maven:3.9.2-eclipse-temurin-17
+  script:
+    - mvn clean install -DskipTests=true
+  artifacts:
+    paths:
+      - target/*.jar
+
+test_backend:
+  stage: test
+  image: maven:3.9.2-eclipse-temurin-17
+  script:
+    - mvn test
