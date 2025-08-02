@@ -45,9 +45,9 @@ test_backend:
       alias: minio
       command: ["server", "/data"]
   variables:
-    POSTGRES_DB: lms_test
-    POSTGRES_USER: user
-    POSTGRES_PASSWORD: password
+    POSTGRES_DB: lms
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: admin1234
     MINIO_ENDPOINT: "http://minio:9000"
     MINIO_ACCESS_KEY: "minioadmin"
     MINIO_SECRET_KEY: "minioadmin"
