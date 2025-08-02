@@ -9,15 +9,13 @@ build_backend:
   stage: build
   image: maven:3.9.2-eclipse-temurin-17
   script:
-    - cd backend
     - mvn clean install -DskipTests=true
   artifacts:
     paths:
-      - backend/target/*.jar
+      - target/*.jar
 
 test_backend:
   stage: test
   image: maven:3.9.2-eclipse-temurin-17
   script:
-    - cd backend
     - mvn test
