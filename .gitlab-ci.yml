@@ -5,6 +5,11 @@ stages:
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .m2/repository
+
 build_backend:
   stage: build
   image: maven:3.9.2-eclipse-temurin-17
@@ -17,5 +22,18 @@ build_backend:
 test_backend:
   stage: test
   image: maven:3.9.2-eclipse-temurin-17
+  dependencies:
+    - build_backend
+  services:
+    - name: minio/minio
+      alias: minio
+      command: ["server", "/data"]
+  variables:
+    MINIO_ENDPOINT: "http://minio:9000"
+    MINIO_ACCESS_KEY: "minioadmin"
+    MINIO_SECRET_KEY: "minioadmin"
   script:
-    - mvn test
+    # Optionnel: attendre que MinIO soit prêt
+    - echo "Waiting for MinIO service..."
+    - until curl -s $MINIO_ENDPOINT; do sleep 3; done
+    - mvn test -X
