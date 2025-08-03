@@ -37,20 +37,29 @@ build_docker:
 test_backend:
   stage: test
   image: maven:3.9.2-eclipse-temurin-17
-  dependencies:
-    - build_backend
   services:
+    - name: postgres:14
+      alias: db
     - name: minio/minio
       alias: minio
-      command: ["server", "/data"]
+      command: ["server", "/data", "--console-address", ":9001"]
   variables:
-    MINIO_ENDPOINT: "http://minio:9000"
-    MINIO_ACCESS_KEY: "minioadmin"
-    MINIO_SECRET_KEY: "minioadmin"
+    SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/lms
+    SPRING_DATASOURCE_USERNAME: postgres
+    SPRING_DATASOURCE_PASSWORD: admin1234
+    SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    MINIO_URL: http://minio:9000
+    MINIO_ACCESS_KEY: minioadmin
+    MINIO_SECRET_KEY: minioadmin
+    POSTGRES_DB: lms
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: admin1234
+  before_script:
+    - echo "Waiting for PostgreSQL and MinIO..."
+    - until pg_isready -h db -U postgres; do sleep 2; done
+    - until curl -s http://minio:9000; do sleep 2; done
   script:
-    - echo "Waiting for MinIO service..."
-    - until curl -s $MINIO_ENDPOINT; do sleep 3; done
-    - mvn test -e -X || (echo "Tests failed or Maven returned error" && ls -l target/surefire-reports && cat target/surefire-reports/*.txt && false)
+    - mvn test -e -X
   artifacts:
     reports:
       junit: target/surefire-reports/*.xml
