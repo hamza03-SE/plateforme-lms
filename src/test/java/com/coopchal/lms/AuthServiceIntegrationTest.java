@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static org.aspectj.bridge.MessageUtil.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
@@ -44,8 +45,14 @@ public class AuthServiceIntegrationTest {
 
     @Test
     public void testRegisterWithRealDbAndMinio() {
-        RegisterRequest request = new RegisterRequest("John", "Doe", "john@example.com", "password", Role.APPRENANT);
-        var response = authService.register(request);
-        assertNotNull(response.getToken());
+        try {
+            RegisterRequest request = new RegisterRequest("John", "Doe", "john@example.com", "password", Role.APPRENANT);
+            var response = authService.register(request);
+            assertNotNull(response.getToken());
+        } catch (Exception e) {
+            e.printStackTrace(); // pour que GitLab affiche clairement l’erreur
+            fail("Exception in test: " + e.getMessage());
+        }
     }
+
 }
