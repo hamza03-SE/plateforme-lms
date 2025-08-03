@@ -2,7 +2,7 @@ stages:
   - build
   - build_docker
   - test
-  - test-api
+  - test_api
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
