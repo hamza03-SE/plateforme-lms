@@ -50,7 +50,10 @@ test_backend:
   script:
     - echo "Waiting for MinIO service..."
     - until curl -s $MINIO_ENDPOINT; do sleep 3; done
-    - mvn test -e -X
+    - mvn test -e -X || (echo "Tests failed or Maven returned error" && ls -l target/surefire-reports && cat target/surefire-reports/*.txt && false)
+  artifacts:
+    reports:
+      junit: target/surefire-reports/*.xml
 
 test_api_newman:
   stage: test_api
@@ -63,12 +66,12 @@ test_api_newman:
   before_script:
     - apk add --no-cache curl docker-cli
   script:
-    - echo "🟡 Lancement de l'environnement Docker Compose..."
+    - echo " Lancement de l'environnement Docker Compose..."
     - docker-compose -f docker-compose.yml up -d
-    - echo "⏳ Attente du backend sur le port 8089..."
+    - echo "Attente du backend sur le port 8089..."
     - until curl -s http://localhost:8089/api/auth/login; do echo "⏳..."; sleep 5; done
-    - echo "✅ Backend prêt, installation de Newman..."
+    - echo "Backend prêt, installation de Newman..."
     - npm install -g newman
-    - echo "▶️ Exécution des tests Newman..."
+    - echo "Exécution des tests Newman..."
     - newman run postman/lms-newman-collection.json
 

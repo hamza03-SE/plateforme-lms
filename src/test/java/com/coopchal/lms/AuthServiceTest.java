@@ -95,6 +95,4 @@ public class AuthServiceTest{
         assertEquals("fake-jwt-token", response.getToken());
     }
 
-
-
 }
