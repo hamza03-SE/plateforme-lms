@@ -2,41 +2,49 @@ version: "3.8"
 
 services:
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lms-backend
     ports:
-      - "8080:8089"
+      - "8080:8089"  # Le backend écoute sur 8089 à l’intérieur, mais exposé sur 8080
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/lms
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=admin1234
-      - MINIO_URL=http://minio:9000
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/lms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin1234
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
     depends_on:
       - db
       - minio
 
   db:
-    image: postgres:17
+    image: postgres:14
+    container_name: lms-db
     environment:
       POSTGRES_DB: lms
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin1234
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
   minio:
     image: minio/minio
     container_name: minio
+    command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
+      - "9000:9000"  # API MinIO
+      - "9001:9001"  # Console d’administration
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
 
 volumes:
   minio_data:
+  pgdata:
