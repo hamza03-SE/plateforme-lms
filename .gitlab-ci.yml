@@ -64,13 +64,15 @@ test_api_newman:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   before_script:
-      - apt-get update && apt-get install -y curl python3-pip
-      - pip3 install docker-compose
+    - apt-get update && apt-get install -y curl
+    - curl -L "https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+    - chmod +x /usr/local/bin/docker-compose
+    - docker-compose version  # vérification
   script:
-    - echo " Lancement de l'environnement Docker Compose..."
+    - echo "Lancement de l'environnement Docker Compose..."
     - docker-compose -f docker-compose.yml up -d
     - echo "Attente du backend sur le port 8089..."
-    - until curl -s http://localhost:8089/api/auth/login; do echo "..."; sleep 5; done
+    - until curl -s http://localhost:8089/api/auth/login; do echo "En attente du backend..."; sleep 5; done
     - echo "Backend prêt, installation de Newman..."
     - npm install -g newman
     - echo "Exécution des tests Newman..."
