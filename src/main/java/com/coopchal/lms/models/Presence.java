@@ -3,7 +3,7 @@ package com.coopchal.lms.models;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "presences")
@@ -17,12 +17,15 @@ public class Presence {
     private Long id;
 
     @ManyToOne
-    private Utilisateur apprenant;
+    @JoinColumn(name = "session_id", nullable = false)
+    private SessionCours session;
 
     @ManyToOne
-    private Cours cours;
+    @JoinColumn(name = "apprenant_id", nullable = false)
+    private Utilisateur apprenant;
 
-    private LocalDate date;
+    private boolean present;
+    @Column(name = "date_heure")
+    private LocalDateTime dateHeure;
 
-    private Boolean estPresent;
 }

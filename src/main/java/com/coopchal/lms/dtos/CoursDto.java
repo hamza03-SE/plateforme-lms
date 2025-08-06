@@ -7,6 +7,7 @@ public record CoursDto(
         String titre,
         String description,
         String formateurNomComplet,
+        String imageUrl,
         int nbApprenants,
         List<ApprenantDto> apprenants
 ) {

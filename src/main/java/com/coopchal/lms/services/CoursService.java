@@ -96,7 +96,7 @@ public class CoursService {
             utilisateurRepository.save(apprenant);
         }
 
-        cours.getApprenants().size(); // Charger pour éviter LazyInit
+        cours.getApprenants().size();
         return toDto(cours);
     }
 
@@ -112,6 +112,7 @@ public class CoursService {
                 cours.getTitre(),
                 cours.getDescription(),
                 formateurNomComplet,
+                cours.getImageUrl(),
                 apprenants.size(),
                 apprenants
         );

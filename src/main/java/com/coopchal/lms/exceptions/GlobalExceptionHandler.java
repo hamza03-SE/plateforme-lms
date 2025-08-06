@@ -22,5 +22,6 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+
     // Tu peux aussi ajouter plus tard d'autres handlers (ex: NotFoundException...)
 }
