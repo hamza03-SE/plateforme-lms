@@ -84,17 +84,29 @@ public class PresenceService {
     @Transactional
     public void autoDeclaration(Long sessionId, String email) {
         log.info("Auto-déclaration de présence par {} pour session {}", email, sessionId);
+
         Utilisateur apprenant = utilisateurRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé avec email : " + email));
+
         SessionCours session = sessionCoursRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Session non trouvée avec ID : " + sessionId));
 
         LocalDateTime now = LocalDateTime.now();
+
+        // Vérifie que la déclaration est bien pendant la session
         if (now.isBefore(session.getDateDebut()) || now.isAfter(session.getDateFin())) {
             log.warn("Tentative d'auto-déclaration hors du créneau : {} - {}", session.getDateDebut(), session.getDateFin());
             throw new IllegalStateException("Vous ne pouvez déclarer votre présence qu’entre "
                     + session.getDateDebut() + " et " + session.getDateFin());
         }
+
+        // Vérifie si c’est dans les 5 dernières minutes
+        LocalDateTime cinqDernieresMinutes = session.getDateFin().minusMinutes(5);
+        if (now.isBefore(cinqDernieresMinutes)) {
+            log.warn("Auto-déclaration non autorisée avant les 5 dernières minutes de la séance.");
+            throw new IllegalStateException("Vous ne pouvez vous auto-déclarer que dans les 5 dernières minutes de la séance.");
+        }
+
         LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
@@ -104,6 +116,9 @@ public class PresenceService {
         if (!existe) {
             Presence presence = new Presence(null, session, apprenant, true, now);
             presenceRepository.save(presence);
+            log.info("Présence enregistrée avec succès.");
+        } else {
+            log.info("Présence déjà enregistrée aujourd’hui pour cet apprenant et cette session.");
         }
     }
 
